@@ -22,21 +22,28 @@ RUN set -e \
     && chmod 755 /usr/local/bin/check \
     && rm -f check-${CHECK_VERSION}-linux-${TARGETARCH}.tar.gz
 
+RUN mkdir -p /opt/apps/config \
+        /opt/dataease2.0/drivers \
+        /opt/dataease2.0/cache \
+        /opt/dataease2.0/data/map \
+        /opt/dataease2.0/data/static-resource \
+        /opt/dataease2.0/data/appearance
+
 RUN set -ex \
     && mkdir -p /deployments \
     && cd /deployments \
     && wget https://github.com/fabric8io-images/run-java-sh/raw/master/fish-pepper/run-java-sh/fp-files/run-java.sh \
     && chmod +x run-java.sh
 
-ARG VERSION=v2.6.0
-
 RUN set -ex \
-    && wget https://github.com/wojiushixiaobai/dataease/releases/download/${VERSION}/dataease-${VERSION}.tar.gz \
-    && tar -xf dataease-${VERSION}.tar.gz -C /opt --strip-components=1 \
-    && rm -f dataease-${VERSION}.tar.gz \
     && mkdir -p /opt/apps/config \
     && cd /opt/apps/config \
     && wget https://github.com/wojiushixiaobai/dataease/raw/master/config/application.yml
+
+ADD drivers/* /opt/dataease2.0/drivers/
+ADD mapFiles/ /opt/dataease2.0/data/map/
+ADD staticResource/ /opt/dataease2.0/data/static-resource/
+ADD core/core-backend/target/CoreApplication.jar /opt/apps/app.jar
 
 FROM debian:bookworm-slim
 ARG TARGETARCH

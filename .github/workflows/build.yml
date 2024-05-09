@@ -18,6 +18,7 @@ jobs:
         run: |
           version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
           echo "version=${version}" >> $GITHUB_ENV
+          sed -i "s/ARG VERSION=.*/ARG VERSION=${version}/g" Dockerfile
 
       - name: Check Release
         run: |
@@ -94,7 +95,7 @@ jobs:
 
       - name: Get Dockerfile
         run: |
-          wget -O Dockerfile.release https://github.com/wojiushixiaobai/dataease/raw/master/Dockerfile
+          wget -O Dockerfile.cicd https://github.com/wojiushixiaobai/dataease/raw/master/Dockerfile.cicd
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -114,7 +115,7 @@ jobs:
         with:
           context: .
           provenance: false
-          file: Dockerfile.release
+          file: Dockerfile.cicd
           platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
           push: true
           tags: |

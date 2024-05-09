@@ -19,12 +19,11 @@ services:
       - net
 
   core-de:
-    image: wojiushixiaobai/dataease:${VERSION}
+    image: wojiushixiaobai/dataease:${VERSION:-latest}
     container_name: de_core
     restart: always
     environment:
       TZ: ${TZ:-Asia/Shanghai}
-      DB_ENGINE: ${DB_ENGINE:-mysql}
       DB_HOST: ${DB_HOST:-mysql-de}
       DB_PORT: ${DB_PORT:-3306}
       DB_NAME: ${DB_NAME:-dataease}
