@@ -1,0 +1,23 @@
+# 版本号可以自己根据项目的版本修改
+VERSION=v2.6.0
+
+# Compose
+COMPOSE_PROJECT_NAME=de
+# COMPOSE_HTTP_TIMEOUT=3600
+# DOCKER_CLIENT_TIMEOUT=3600
+
+# 持久化存储
+VOLUME_DIR=/data/dataease
+
+# 时区
+TZ=Asia/Shanghai
+
+# MySQL
+DB_HOST=mysql-de
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=Password123@mysql
+DB_NAME=dataease
+
+# Web
+HTTP_PORT=8100
