@@ -13,10 +13,10 @@ VOLUME_DIR=/data/dataease
 TZ=Asia/Shanghai
 
 # MySQL
-DB_HOST=mysql-de
+DB_HOST=mysql
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=Password123@mysql
+DB_PASSWORD=nu4x599Wq7u0Bn8EABh3J91G
 DB_NAME=dataease
 
 # Web

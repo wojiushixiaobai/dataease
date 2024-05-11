@@ -1,14 +1,14 @@
 services:
-  mysql-de:
+  mysql:
     image: mariadb:10.6
     container_name: de_mysql
     restart: always
     environment:
       TZ: ${TZ:-Asia/Shanghai}
-      MARIADB_DATABASE: $DB_NAME
-      MARIADB_ROOT_PASSWORD: $DB_PASSWORD
+      MARIADB_DATABASE: ${DB_NAME:-dataease}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-nu4x599Wq7u0Bn8EABh3J91G}
     volumes:
-      - ${VOLUME_DIR}/mariadb/data:/var/lib/mysql
+      - ${VOLUME_DIR:-./data}/mariadb/data:/var/lib/mysql
     healthcheck:
       test: "mysql -h127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD -e 'SHOW DATABASES;'"
       interval: 10s
@@ -18,17 +18,17 @@ services:
     networks:
       - net
 
-  core-de:
+  core:
     image: wojiushixiaobai/dataease:${VERSION:-latest}
     container_name: de_core
     restart: always
     environment:
       TZ: ${TZ:-Asia/Shanghai}
-      DB_HOST: ${DB_HOST:-mysql-de}
+      DB_HOST: ${DB_HOST:-mysql}
       DB_PORT: ${DB_PORT:-3306}
       DB_NAME: ${DB_NAME:-dataease}
       DB_USER: ${DB_USER:-root}
-      DB_PASSWORD: ${DB_PASSWORD:-Password123@mysql}
+      DB_PASSWORD: ${DB_PASSWORD:-nu4x599Wq7u0Bn8EABh3J91G}
     ports:
       - ${HTTP_PORT:-8100}:8100
     volumes:
@@ -42,7 +42,7 @@ services:
       retries: 3
       start_period: 90s
     depends_on:
-      mysql-de:
+      mysql:
         condition: service_healthy
     networks:
       - net
