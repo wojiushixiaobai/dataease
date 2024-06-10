@@ -22,14 +22,15 @@ jobs:
 
       - name: Check Release
         run: |
-          if gh release view ${{ env.version }} -R ${{ github.repository }} | grep dataease-${{ env.version }}.tar.gz; then
-            echo "Release already exists"
-            exit 1
+          echo "create=0" >> $GITHUB_ENV
+          if ! gh release view ${{ env.version }} -R ${{ github.repository }}; then
+            echo "create=1" >> $GITHUB_ENV
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Tag
+        if: env.create == '1'
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
@@ -39,6 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
+        if: env.create == '1'
         run: |
           gh release create ${{ env.version }} -R ${{ github.repository }} --title "Release ${{ env.version }}" --notes "Release ${{ env.version }}" || echo "Release already exists"
         env:
@@ -52,26 +54,38 @@ jobs:
         run: |
           version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
           echo "version=${version}" >> $GITHUB_ENV
+
+      - name: Check Release
+        run: |
+          if ! gh release view ${{ env.version }} -R ${{ github.repository }} | grep dataease-${{ env.version }}.tar.gz; then
+            echo "create=1" >> $GITHUB_ENV
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Checkout Code
+        if: env.create == '1'
         uses: actions/checkout@v3
         with:
           repository: 'dataease/dataease'
           ref: ${{ steps.get-version.outputs.version }}
 
-      - name: Set up JDK 17
+      - name: Set up Java
+        if: env.create == '1'
         uses: actions/setup-java@v4
         with:
           distribution: 'oracle'
-          java-version: '17'
+          java-version: '21'
           cache: 'maven'
       
       - name: Set up Node.js
+        if: env.create == '1'
         uses: actions/setup-node@v4
         with:
           node-version: '16.20'
 
       - name: Build Web
+        if: env.create == '1'
         run: |
           mvn clean install
           cd core && mvn clean package -Pstandalone -U -Dmaven.test.skip=true
@@ -79,6 +93,7 @@ jobs:
           dataease.version: ${{ env.version }}
 
       - name: Create File
+        if: env.create == '1'
         run: |
           mkdir -p opt/apps opt/dataease2.0/drivers opt/dataease2.0/cache opt/dataease2.0/data/map opt/dataease2.0/data/static-resource opt/dataease2.0/data/appearance
           cp -rf drivers/* opt/dataease2.0/drivers/
@@ -89,6 +104,13 @@ jobs:
           tar -czf dataease-${{ env.version }}.tar.gz dataease-${{ env.version }}
           sha256sum dataease-${{ env.version }}.tar.gz > dataease-${{ env.version }}.tar.gz.sha256
     
+      - name: Upload Release Asset
+        if: env.create == '1'
+        run: |
+          gh release upload ${{ env.version }} dataease-${{ env.version }}.tar.gz dataease-${{ env.version }}.tar.gz.sha256 -R ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: docker/setup-qemu-action@v3
 
       - uses: docker/setup-buildx-action@v3
@@ -126,9 +148,3 @@ jobs:
           outputs: type=image,oci-mediatypes=true,compression=zstd,compression-level=3,force-compression=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      
-      - name: Upload Release Asset
-        run: |
-          gh release upload ${{ env.version }} dataease-${{ env.version }}.tar.gz dataease-${{ env.version }}.tar.gz.sha256 -R ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

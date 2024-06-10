@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS builder
+FROM debian:trixie-slim AS builder
 ARG TARGETARCH
 
 ARG DEPENDENCIES="                    \
@@ -28,7 +28,7 @@ RUN set -ex \
     && wget https://github.com/fabric8io-images/run-java-sh/raw/master/fish-pepper/run-java-sh/fp-files/run-java.sh \
     && chmod +x run-java.sh
 
-ARG VERSION=v2.6.0
+ARG VERSION=v2.7.0
 
 RUN set -ex \
     && wget https://github.com/wojiushixiaobai/dataease/releases/download/${VERSION}/dataease-${VERSION}.tar.gz \
@@ -38,19 +38,19 @@ RUN set -ex \
     && cd /opt/apps/config \
     && wget https://github.com/wojiushixiaobai/dataease/raw/master/config/application.yml
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 ARG TARGETARCH
 
 ARG DEPENDENCIES="                    \
         ca-certificates               \
-        openjdk-17-jre-headless"
+        openjdk-22-jre-headless"
 
 RUN set -ex \
     && apt-get update \
     && apt-get install -y --no-install-recommends ${DEPENDENCIES} \
     && echo "no" | dpkg-reconfigure dash \
-    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-17-openjdk/security/java.security \
-    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1@jdk.tls.disabledAlgorithms=SSLv3@" /etc/java-17-openjdk/security/java.security \
+    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-22-openjdk/security/java.security \
+    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1@jdk.tls.disabledAlgorithms=SSLv3@" /etc/java-22-openjdk/security/java.security \
     && sed -i "s@# export @export @g" ~/.bashrc \
     && sed -i "s@# alias @alias @g" ~/.bashrc \
     && apt-get clean all \

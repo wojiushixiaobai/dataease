@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS builder
+FROM debian:trixie-slim AS builder
 ARG TARGETARCH
 
 ARG DEPENDENCIES="                    \
@@ -45,19 +45,19 @@ ADD mapFiles/ /opt/dataease2.0/data/map/
 ADD staticResource/ /opt/dataease2.0/data/static-resource/
 ADD core/core-backend/target/CoreApplication.jar /opt/apps/app.jar
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 ARG TARGETARCH
 
 ARG DEPENDENCIES="                    \
         ca-certificates               \
-        openjdk-17-jre-headless"
+        openjdk-22-jre-headless"
 
 RUN set -ex \
     && apt-get update \
     && apt-get install -y --no-install-recommends ${DEPENDENCIES} \
     && echo "no" | dpkg-reconfigure dash \
-    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-17-openjdk/security/java.security \
-    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1@jdk.tls.disabledAlgorithms=SSLv3@" /etc/java-17-openjdk/security/java.security \
+    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-22-openjdk/security/java.security \
+    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1@jdk.tls.disabledAlgorithms=SSLv3@" /etc/java-22-openjdk/security/java.security \
     && sed -i "s@# export @export @g" ~/.bashrc \
     && sed -i "s@# alias @alias @g" ~/.bashrc \
     && apt-get clean all \
