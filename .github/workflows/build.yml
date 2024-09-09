@@ -133,12 +133,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
+        if: env.create == '1'
         uses: docker/build-push-action@v5
         with:
           context: .
           provenance: false
           file: Dockerfile.cicd
-          platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
+          platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/riscv64,linux/s390x
           push: true
           tags: |
             ${{ github.repository_owner }}/dataease:${{ env.version }}
