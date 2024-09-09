@@ -82,7 +82,7 @@ jobs:
         if: env.create == '1'
         uses: actions/setup-node@v4
         with:
-          node-version: '16.15'
+          node-version: '16.15.0'
 
       - name: Build Web
         if: env.create == '1'
