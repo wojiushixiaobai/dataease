@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: check Code
         uses: actions/checkout@v4
-      
+
       - name: Check Version
         run: |
           version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
@@ -45,7 +45,7 @@ jobs:
           gh release create ${{ env.version }} -R ${{ github.repository }} --title "Release ${{ env.version }}" --notes "Release ${{ env.version }}" || echo "Release already exists"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
   build:
     needs: check
     runs-on: ubuntu-latest
@@ -62,13 +62,14 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Checkout Code
         if: env.create == '1'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'dataease/dataease'
           ref: ${{ steps.get-version.outputs.version }}
+          lfs: true
 
       - name: Set up Java
         if: env.create == '1'
@@ -76,13 +77,12 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: '21'
-          cache: 'maven'
-      
+
       - name: Set up Node.js
         if: env.create == '1'
         uses: actions/setup-node@v4
         with:
-          node-version: '16.20'
+          node-version: '16.15'
 
       - name: Build Web
         if: env.create == '1'
@@ -95,7 +95,7 @@ jobs:
       - name: Create File
         if: env.create == '1'
         run: |
-          mkdir -p opt/apps opt/dataease2.0/drivers opt/dataease2.0/cache opt/dataease2.0/data/map opt/dataease2.0/data/static-resource opt/dataease2.0/data/appearance
+          mkdir -p opt/apps opt/dataease2.0/drivers opt/dataease2.0/cache opt/dataease2.0/data/map opt/dataease2.0/data/static-resource opt/dataease2.0/data/appearance opt/dataease2.0/data/exportData opt/dataease2.0/data/plugin
           cp -rf drivers/* opt/dataease2.0/drivers/
           cp -rf mapFiles/* opt/dataease2.0/data/map/
           cp -rf staticResource/* opt/dataease2.0/data/static-resource/
@@ -103,7 +103,7 @@ jobs:
           mv opt dataease-${{ env.version }}
           tar -czf dataease-${{ env.version }}.tar.gz dataease-${{ env.version }}
           sha256sum dataease-${{ env.version }}.tar.gz > dataease-${{ env.version }}.tar.gz.sha256
-    
+
       - name: Upload Release Asset
         if: env.create == '1'
         run: |

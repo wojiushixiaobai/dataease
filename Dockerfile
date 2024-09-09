@@ -14,7 +14,7 @@ RUN set -ex \
 
 WORKDIR /opt
 
-ARG CHECK_VERSION=v1.0.2
+ARG CHECK_VERSION=v1.0.3
 RUN set -e \
     && wget --quiet https://github.com/jumpserver-dev/healthcheck/releases/download/${CHECK_VERSION}/check-${CHECK_VERSION}-linux-${TARGETARCH}.tar.gz \
     && tar -xf check-${CHECK_VERSION}-linux-${TARGETARCH}.tar.gz -C /usr/local/bin/ check \
@@ -28,7 +28,7 @@ RUN set -ex \
     && wget https://github.com/fabric8io-images/run-java-sh/raw/master/fish-pepper/run-java-sh/fp-files/run-java.sh \
     && chmod +x run-java.sh
 
-ARG VERSION=v2.7.0
+ARG VERSION=v2.10.0
 
 RUN set -ex \
     && wget https://github.com/wojiushixiaobai/dataease/releases/download/${VERSION}/dataease-${VERSION}.tar.gz \
@@ -43,14 +43,14 @@ ARG TARGETARCH
 
 ARG DEPENDENCIES="                    \
         ca-certificates               \
-        openjdk-22-jre-headless"
+        openjdk-21-jre-headless"
 
 RUN set -ex \
     && apt-get update \
     && apt-get install -y --no-install-recommends ${DEPENDENCIES} \
     && echo "no" | dpkg-reconfigure dash \
-    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-22-openjdk/security/java.security \
-    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1@jdk.tls.disabledAlgorithms=SSLv3@" /etc/java-22-openjdk/security/java.security \
+    && echo "securerandom.source=file:/dev/urandom" >> /etc/java-21-openjdk/security/java.security \
+    && sed -i "s@jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1, @jdk.tls.disabledAlgorithms=@" /etc/java-21-openjdk/security/java.security \
     && sed -i "s@# export @export @g" ~/.bashrc \
     && sed -i "s@# alias @alias @g" ~/.bashrc \
     && apt-get clean all \
@@ -62,9 +62,9 @@ COPY --from=builder /deployments/run-java.sh /deployments/run-java.sh
 
 WORKDIR /opt/apps
 
-ENV JAVA_APP_DIR=/deployments \
-    JAVA_MAX_HEAP_RATIO=40 \
-    JAVA_APP_JAR=/opt/apps/app.jar
+ENV JAVA_APP_JAR=/opt/apps/app.jar \
+    RUNNING_PORT=8100
+
 ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Dloader.path=/opt/apps -Dspring.config.additional-location=/opt/apps/config/"
 
 EXPOSE 8100
