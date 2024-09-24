@@ -10,15 +10,20 @@ name: Checkout and Create Release Version
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: check Code
         uses: actions/checkout@v4
 
       - name: Check Version
+        id: get-version
         run: |
           version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
           echo "version=${version}" >> $GITHUB_ENV
+          echo "version=${version}" >> $GITHUB_OUTPUT
           sed -i "s/ARG VERSION=.*/ARG VERSION=${version}/g" Dockerfile
+          echo "Current Version: ${version}"
 
       - name: Check Release
         run: |
@@ -50,10 +55,22 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: Check Version
         run: |
-          version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
+          version=${{ needs.check.outputs.version }}
           echo "version=${version}" >> $GITHUB_ENV
+          echo "Current Version: ${version}"
 
       - name: Check Release
         run: |
@@ -77,12 +94,15 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: '21'
+          cache: 'maven'
 
       - name: Set up Node.js
         if: env.create == '1'
         uses: actions/setup-node@v4
         with:
           node-version: '16.15.0'
+          cache: 'npm'
+          cache-dependency-path: '**/package.json'
 
       - name: Build Web
         if: env.create == '1'
@@ -134,7 +154,7 @@ jobs:
 
       - name: Build and Push Image
         if: env.create == '1'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           provenance: false
