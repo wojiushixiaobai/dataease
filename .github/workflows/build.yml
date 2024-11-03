@@ -20,6 +20,10 @@ jobs:
         id: get-version
         run: |
           version=$(curl -s 'https://api.github.com/repos/dataease/dataease/releases/latest' | jq -r ".tag_name")
+          if [ -z "${version}" ] || [ "${version}" == "null" ]; then
+            echo "Failed to get version"
+            exit 1
+          fi
           echo "version=${version}" >> $GITHUB_ENV
           echo "version=${version}" >> $GITHUB_OUTPUT
           sed -i "s/ARG VERSION=.*/ARG VERSION=${version}/g" Dockerfile
