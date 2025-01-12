@@ -41,10 +41,13 @@ jobs:
       - name: Create Tag
         if: env.create == '1'
         run: |
-          git config --global user.name "${GITHUB_ACTOR}"
-          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git tag -a ${{ env.version }} -m "Release ${{ env.version }}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Release ${{ env.version }}" || echo "No changes"
+          git tag -a ${{ env.version }} -m "Release ${{ env.version }}" || echo "Tag already exists"
           git push origin ${{ env.version }} || echo "Tag already exists"
+          git push origin master || echo "No changes"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
