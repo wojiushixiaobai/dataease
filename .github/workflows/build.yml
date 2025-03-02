@@ -26,6 +26,7 @@ jobs:
           fi
           echo "version=${version}" >> $GITHUB_ENV
           echo "version=${version}" >> $GITHUB_OUTPUT
+          sed -i "s/VERSION=.*/VERSION=${version}/g" config-example.txt
           sed -i "s/ARG VERSION=.*/ARG VERSION=${version}/g" Dockerfile
           echo "Current Version: ${version}"
 

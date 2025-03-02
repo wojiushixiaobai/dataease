@@ -36,6 +36,12 @@ cd ~
 git clone --depth=1 https://github.com/wojiushixiaobai/dataease
 
 cd ~/dataease
+
+cp config-example.txt .env
+
+# 自行修改配置文件
+cat .env
+
 docker compose up -d
 
 # 用户名: admin
