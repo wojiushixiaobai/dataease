@@ -28,7 +28,7 @@ RUN set -ex \
     && wget https://github.com/fabric8io-images/run-java-sh/raw/master/fish-pepper/run-java-sh/fp-files/run-java.sh \
     && chmod +x run-java.sh
 
-ARG VERSION=v2.10.6
+ARG VERSION=v2.10.7
 
 RUN set -ex \
     && wget https://github.com/wojiushixiaobai/dataease/releases/download/${VERSION}/dataease-${VERSION}.tar.gz \
